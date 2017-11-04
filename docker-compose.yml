@@ -8,16 +8,20 @@ services:
     volumes:
         - ./mongodb.key:/mongodb.key
         - ./mongo-configserver.init.js:/mongo-configserver.init.js
+        - /data/db/mongo/cs1:/data/db
   mongo-configserver-02:
     image: mongo
     command: mongod --auth --port 27017 --configsvr --noprealloc --smallfiles --replSet mongo-configserver --dbpath /data/db --oplogSize 16 --keyFile /mongodb.key
     volumes:
         - ./mongodb.key:/mongodb.key
+        - /data/db/mongo/cs2:/data/db
   mongo-configserver-03:
     image: mongo
     command: mongod --auth --port 27017 --configsvr --noprealloc --smallfiles --replSet mongo-configserver --dbpath /data/db --oplogSize 16 --keyFile /mongodb.key
     volumes:
         - ./mongodb.key:/mongodb.key
+        - /data/db/mongo/data2:/data/db
+        - /data/db/mongo/cs3:/data/db
     
   # First shard 
   mongo-shard-01a:
@@ -26,16 +30,19 @@ services:
     volumes:
         - ./mongodb.key:/mongodb.key
         - ./mongo-shard-01.init.js:/mongo-shard-01.init.js
+        - /data/db/mongo/sh1:/data/db
   mongo-shard-01b:
     image: mongo
     command: mongod --auth --port 27018 --noprealloc --smallfiles --replSet mongo-shard-01 --dbpath /data/db --nojournal --oplogSize 16 --keyFile /mongodb.key
     volumes:
         - ./mongodb.key:/mongodb.key
+        - /data/db/mongo/sh1b:/data/db
   mongo-shard-01c:
     image: mongo
     command: mongod --auth --port 27018 --noprealloc --smallfiles --replSet mongo-shard-01 --dbpath /data/db --nojournal --oplogSize 16 --keyFile /mongodb.key
     volumes:
         - ./mongodb.key:/mongodb.key
+        - /data/db/mongo/sh1c:/data/db
 
   # Second shard
   mongo-shard-02a:
@@ -44,17 +51,20 @@ services:
     volumes:
         - ./mongodb.key:/mongodb.key
         - ./mongo-shard-02.init.js:/mongo-shard-02.init.js
+        - /data/db/mongo/sh2a:/data/db
   mongo-shard-02b:
     image: mongo
     command: mongod --auth --port 27019 --noprealloc --smallfiles --replSet mongo-shard-02 --dbpath /data/db --nojournal --oplogSize 16 --keyFile /mongodb.key
     volumes:
         - ./mongodb.key:/mongodb.key
+        - /data/db/mongo/sh2b:/data/db
   mongo-shard-02c:
     image: mongo
     command: mongod --auth --port 27019 --noprealloc --smallfiles --replSet mongo-shard-02 --dbpath /data/db --nojournal --oplogSize 16 --keyFile /mongodb.key
     volumes:
         - ./mongodb.key:/mongodb.key
-
+        - /data/db/mongo/sh2c:/data/db
+        
   # Third shard
   mongo-shard-03a:
     image: mongo
@@ -62,16 +72,19 @@ services:
     volumes:
         - ./mongodb.key:/mongodb.key
         - ./mongo-shard-03.init.js:/mongo-shard-03.init.js
+        - /data/db/mongo/sh3a:/data/db
   mongo-shard-03b:
     image: mongo
     command: mongod --auth --port 27020 --noprealloc --smallfiles --replSet mongo-shard-03 --dbpath /data/db --nojournal --oplogSize 16 --keyFile /mongodb.key
     volumes:
         - ./mongodb.key:/mongodb.key
+        - /data/db/mongo/sh3b:/data/db
   mongo-shard-03c:
     image: mongo
     command: mongod --auth --port 27020 --noprealloc --smallfiles --replSet mongo-shard-03 --dbpath /data/db --nojournal --oplogSize 16 --keyFile /mongodb.key
     volumes:
         - ./mongodb.key:/mongodb.key
+        - /data/db/mongo/sh3c:/data/db
 
   # Mongo router
   mongo-router-01:
@@ -82,8 +95,9 @@ services:
         - ./mongo-sharding.init.js:/mongo-sharding.init.js
         - ./mongo-auth.init.js:/mongo-auth.init.js
     # Can be useful if you need to access it from your current host within Robomongo or some other clients
-    #ports:
-    #  - "27017:27017"
+    ports:
+      - "27019:27017"
+      
     depends_on:
       - mongo-configserver-01
       - mongo-configserver-02
